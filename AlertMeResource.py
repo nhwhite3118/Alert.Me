@@ -2,7 +2,6 @@ import config
 from flask import Flask
 import flask
 import pymysql
-import zipcode
 from twilio.rest.lookups import TwilioLookupsClient
 from datetime import datetime
 
@@ -19,7 +18,7 @@ client = TwilioLookupsClient()
 client = TwilioLookupsClient()
 
 # database
-conn = pymysql.connect(host='127.0.0.1', user=config.DB_USER, passwd=config.DB_PASSWORD, db='AlertMe')
+conn = pymysql.connect(host='127.0.0.1', user=config.DB_USER, passwd=config.DB_PASSWORD, db='alertme')
 cur = conn.cursor()
 
 
@@ -41,7 +40,7 @@ def subscribe(number, match, site):
     else:
         return "We are sorry, but AlertMe does not support your carrier"
 
-    sql = "INSERT INTO user(number,carrier_portal,match,site) VALUES(%s,%s,%s,%s)"
+    sql = "INSERT INTO user(number,portal,matchstr,site) VALUES(%s,%s,%s,%s)"
     v = (str(number), portal, match, site)
     print(str(datetime.now()) + " Adding user - " + carrier + " " + str(v))
     cur.execute(sql, v)
