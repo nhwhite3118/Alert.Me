@@ -4,6 +4,9 @@ import flask
 import pymysql
 from twilio.rest.lookups import TwilioLookupsClient
 from datetime import datetime
+from tornado.wsgi import WSGIContainer
+from tornado.httpserver import HTTPServer
+from tornado.ioloop import IOLoop
 
 app = Flask(__name__)
 
@@ -89,7 +92,14 @@ def users():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    #app.run(host='0.0.0.0')
+    http_server = HTTPServer(WSGIContainer(app))
+    http_server.listen(8000)
+    print(str(datetime.now()) + " Flask started...")
+    IOLoop.instance().start()
+
+cur.close()
+conn.close()
 
 cur.close()
 conn.close()
