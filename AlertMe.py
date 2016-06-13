@@ -18,13 +18,20 @@ def sendAlerts():
         portal = user[1]
         match = user[2]
         site = user[3]
+        fSite=site
         if(not "www." in site):
-            site = "www."+site
-        if(not "http://" in site):
-            site = "http://"+site
-        notSpam = site.replace("http://","").replace("https://","").replace("www.","")
-        if checkSite(match,site):
-            sendEmailSms(number + "@" + portal, "Your AlertMe alert for "+match+" at " + str(notSpam)+ " has gone off!")
+            fSite = "www."+site
+        if(not "http://" in fSite):
+            fSite = "http://"+fSite
+        notSpam = fSite.replace("http://","").replace("https://","").replace("www.","")
+        print(site)
+        if checkSite(match,fSite):
+            sql = "DELETE FROM user WHERE number=%s AND portal =%s AND matchstr=%s AND site=%s;"
+            v = (number,portal,match,site)
+            cur.execute(sql,v)
+            conn.commit()
+            #sendEmailSms(number + "@" + portal, "Your AlertMe alert for "+match+" at " + str(notSpam)+ " has gone off!")
+            sendEmailSms(number + "@" + portal, "Your AlertMe alert for "+match+" has gone off!")
 
 
 def checkSite(match,site):
