@@ -34,13 +34,13 @@ def subscribe(number, match, site):
         if len(str(int(number))) > 15:
             cur.close()
             conn.close()
-            resp = flask.Response("Please input a valid number", status=200)
+            resp = flask.Response("Please input a valid number", status=400)
             resp.headers["Access-Control-Allow-Origin"] = "*"
             return resp
     except:
         cur.close()
         conn.close()
-        resp = flask.Response("Please input a valid number", status=200)
+        resp = flask.Response("Please input a valid number", status=400)
         resp.headers["Access-Control-Allow-Origin"] = "*"
         return resp
 
@@ -51,7 +51,7 @@ def subscribe(number, match, site):
     if carrier in carrierPortalLookup:
         portal = carrierPortalLookup[carrier]
     else:
-        resp = flask.Response("We are sorry, but AlertMe does not support your carrier" , status=200)
+        resp = flask.Response("We are sorry, but AlertMe does not support your carrier" , status=400)
         resp.headers["Access-Control-Allow-Origin"] = "*"
         cur.close()
         conn.close()
@@ -76,9 +76,17 @@ def unsubscribe(number):
     cur = conn.cursor()
     try:
         if len(str(int(number))) > 15:
-            return "Please input a valid number"
+            cur.close()
+            conn.close()
+            resp = flask.Response("Please input a valid number", status=400)
+            resp.headers["Access-Control-Allow-Origin"] = "*"
+            return resp
     except:
-        return "Please input a valid number"
+        cur.close()
+        conn.close()
+        resp = flask.Response("Please input a valid number", status=400)
+        resp.headers["Access-Control-Allow-Origin"] = "*"
+        return resp
 
     print(str(datetime.now()) + " Removing user - " + number)
     cur.execute("DELETE FROM user WHERE number=" + number)
@@ -98,20 +106,6 @@ def hello():
     resp.headers["Access-Control-Allow-Origin"] = "*"
     return resp
 
-# consider taking out during release for privacy
-@app.route("/users")
-def users():
-    conn = pymysql.connect(host='127.0.0.1', user=config.DB_USER, passwd=config.DB_PASSWORD, db='alertme')
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM user")
-    users = ""
-    for r in cur:
-        users += str(r)
-    resp = flask.Response(users, status=200)
-    resp.headers["Access-Control-Allow-Origin"] = "*"
-    cur.close()
-    conn.close()
-    return resp
 
 
 if __name__ == "__main__":
@@ -120,9 +114,3 @@ if __name__ == "__main__":
     http_server.listen(8000)
     print(str(datetime.now()) + " Flask started...")
     IOLoop.instance().start()
-
-cur.close()
-conn.close()
-
-cur.close()
-conn.close()
