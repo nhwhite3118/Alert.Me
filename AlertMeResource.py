@@ -21,17 +21,23 @@ client = TwilioLookupsClient()
 client = TwilioLookupsClient()
 
 # database
-conn = pymysql.connect(host='127.0.0.1', user=config.DB_USER, passwd=config.DB_PASSWORD, db='alertme')
-cur = conn.cursor()
+#conn = pymysql.connect(host='127.0.0.1', user=config.DB_USER, passwd=config.DB_PASSWORD, db='alertme')
+#cur = conn.cursor()
 
 
 # subscribes a user by inserting their number into the database
 @app.route("/api/subscribe/number/<number>/match/<match>/site/<site>", methods=["POST"])
 def subscribe(number, match, site):
+    conn = pymysql.connect(host='127.0.0.1', user=config.DB_USER, passwd=config.DB_PASSWORD, db='alertme')
+    cur = conn.cursor()
     try:
         if len(str(int(number))) > 15:
+            cur.close()
+            conn.close()
             return "Please input a valid number"
     except:
+        cur.close()
+        conn.close()
         return "Please input a valid number"
 
     numberInfo = client.phone_numbers.get(number, include_carrier_info=True)
@@ -41,6 +47,8 @@ def subscribe(number, match, site):
     if carrier in carrierPortalLookup:
         portal = carrierPortalLookup[carrier]
     else:
+        cur.close()
+        conn.close()
         return "We are sorry, but AlertMe does not support your carrier"
 
     sql = "INSERT INTO user(number,portal,matchstr,site) VALUES(%s,%s,%s,%s)"
@@ -51,12 +59,16 @@ def subscribe(number, match, site):
 
     resp = flask.Response("Subscribed " + str(number), status=200)
     resp.headers["Access-Control-Allow-Origin"] = "*"
+    cur.close()
+    conn.close()
     return resp,
 
 
 # unsubscribes a user by removing their number from the database
 @app.route("/api/unsubscribe/number/<number>", methods=["POST"])
 def unsubscribe(number):
+    conn = pymysql.connect(host='127.0.0.1', user=config.DB_USER, passwd=config.DB_PASSWORD, db='alertme')
+    cur = conn.cursor()
     try:
         if len(str(int(number))) > 15:
             return "Please input a valid number"
@@ -69,6 +81,8 @@ def unsubscribe(number):
 
     resp = flask.Response("Unsubscribed " + str(number), status=200)
     resp.headers["Access-Control-Allow-Origin"] = "*"
+    cur.close()
+    conn.close()
     return resp
 
 
@@ -82,12 +96,16 @@ def hello():
 # consider taking out during release for privacy
 @app.route("/users")
 def users():
+    conn = pymysql.connect(host='127.0.0.1', user=config.DB_USER, passwd=config.DB_PASSWORD, db='alertme')
+    cur = conn.cursor()
     cur.execute("SELECT * FROM user")
     users = ""
     for r in cur:
         users += str(r)
     resp = flask.Response(users, status=200)
     resp.headers["Access-Control-Allow-Origin"] = "*"
+    cur.close()
+    conn.close()
     return resp
 
 
