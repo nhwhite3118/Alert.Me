@@ -34,11 +34,15 @@ def subscribe(number, match, site):
         if len(str(int(number))) > 15:
             cur.close()
             conn.close()
-            return "Please input a valid number"
+            resp = flask.Response("Please input a valid number", status=200)
+            resp.headers["Access-Control-Allow-Origin"] = "*"
+            return resp
     except:
         cur.close()
         conn.close()
-        return "Please input a valid number"
+        resp = flask.Response("Please input a valid number", status=200)
+        resp.headers["Access-Control-Allow-Origin"] = "*"
+        return resp
 
     numberInfo = client.phone_numbers.get(number, include_carrier_info=True)
     carrier = numberInfo.carrier['name']
@@ -47,10 +51,11 @@ def subscribe(number, match, site):
     if carrier in carrierPortalLookup:
         portal = carrierPortalLookup[carrier]
     else:
+        resp = flask.Response("We are sorry, but AlertMe does not support your carrier" , status=200)
+        resp.headers["Access-Control-Allow-Origin"] = "*"
         cur.close()
         conn.close()
-        return "We are sorry, but AlertMe does not support your carrier"
-
+        return resp
     sql = "INSERT INTO user(number,portal,matchstr,site) VALUES(%s,%s,%s,%s)"
     v = (str(number), portal, match, site)
     print(str(datetime.now()) + " Adding user - " + carrier + " " + str(v))
