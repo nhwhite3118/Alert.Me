@@ -26,7 +26,7 @@ client = TwilioLookupsClient()
 
 
 # subscribes a user by inserting their number into the database
-@app.route("/api/subscribe/number/<number>/match/<match>/site/<site>", methods=["POST"])
+@app.route("/api/subscribe/number/<number>/matchstr/<match>/site/<site>", methods=["POST"])
 def subscribe(number, match, site):
     conn = pymysql.connect(host='127.0.0.1', user=config.DB_USER, passwd=config.DB_PASSWORD, db='alertme')
     cur = conn.cursor()
